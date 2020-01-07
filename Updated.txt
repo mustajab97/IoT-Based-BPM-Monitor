@@ -1,0 +1,55 @@
+
+const int PulseSensorPurplePin = A0;
+int Threshold = 550;
+
+#define USE_ARDUINO_INTERRUPTS true    // Set-up low-level interrupts for most acurate BPM math.
+#include <PulseSensorPlayground.h>
+
+#define BLYNK_PRINT Serial
+
+//#include <SerialESP8266wifi.h>
+#include<ESP8266WiFi.h>
+#include<BlynkSimpleEsp8266.h>
+
+
+PulseSensorPlayground pulseSensor;
+
+char auth[] = "JqBkxciJbujQbVJDddq8DEWvU9HPn5fL";
+
+char ssid[] = "Mera_Apna_Net";
+char pass[] = "03482605480";
+
+WidgetLCD lcd(V1);
+
+void setup() {
+  Serial.begin(9600);
+  Blynk.begin(auth,ssid,pass);
+
+  pulseSensor.analogInput(PulseSensorPurplePin);   
+  pulseSensor.setThreshold(Threshold);
+  if (pulseSensor.begin()) {
+    Serial.println("We created a pulseSensor Object !");}
+  
+  lcd.clear();
+  lcd.print(0, 0, "HEART RATE");
+}
+
+void loop() {
+  
+ int myBPM = pulseSensor.getBeatsPerMinute();
+
+ if (pulseSensor.sawStartOfBeat()) {            // Constantly test to see if "a beat happened". 
+ Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
+ Serial.print("BPM: ");                        // Print phrase "BPM: " 
+ Serial.println(myBPM);
+
+ lcd.print(7, 1, myBPM);
+ }                       // Print the value inside of myBPM. 
+
+  //lcd.print(7, 1, myBPM);
+  Blynk.run();
+
+
+  //delay(20);                    // considered best practice in a simple sketch.
+
+}
